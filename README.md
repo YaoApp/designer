@@ -73,7 +73,20 @@ design-works/
   .conventions.yml         # Global cross-project defaults
 ```
 
-## Asset registry
+## Relationship to `YaoApp/design-assets`
 
-Design assets (28 schemes, 31 palettes, 11 typefaces, 14 templates, preview-server dist)
-are hosted at `YaoApp/design-assets` and downloaded on demand — nothing is bundled.
+This repo (`YaoApp/designer`) is the **agent** — the code that orchestrates the
+design workflow. The sibling repo
+[`YaoApp/design-assets`](https://github.com/YaoApp/design-assets) is the
+**content registry** — the raw design assets the agent pulls at runtime.
+
+| Repo | Role | Ships |
+|------|------|-------|
+| `YaoApp/designer` | Agent logic | `package.yao`, `prompts.yml`, `sandbox.yao`, 8 skills |
+| `YaoApp/design-assets` | Content registry | 28 design schemes, 31 color palettes, 11 typefaces, 14 HTML templates, preview-server dist |
+
+At startup the agent downloads `INDEX.md` (~5 KB) from
+`design-assets` to discover what's available. When a user picks a palette,
+font, or template, the agent fetches just that asset on demand and caches
+it locally. Nothing is bundled — the agent stays lean, assets iterate
+independently.
