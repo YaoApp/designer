@@ -1,4 +1,4 @@
-# Designer Agent
+# Designer
 
 `smith.designer` — AI-powered visual design and prototyping agent
 for web, app, and poster design projects.
