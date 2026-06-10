@@ -17,16 +17,22 @@ RAW_BASE="https://raw.githubusercontent.com/YaoApp/design-assets/main"
 CACHE_DIR="$WORKDIR/design-works/.cache/assets/preview-server"
 
 LOCAL_VERSION=$(cat "$CACHE_DIR/version.txt" 2>/dev/null || echo "")
-# AI reads INDEX.md to get REMOTE_VERSION (e.g. "1.0.0")
-REMOTE_VERSION="1.0.0"
+# AI reads INDEX.md to get REMOTE_VERSION (e.g. "0.2.0")
+REMOTE_VERSION="0.2.0"
 
-if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ] || [ ! -d "$CACHE_DIR/dist" ]; then
-  echo "Downloading Preview Server v$REMOTE_VERSION (~2MB)..."
+if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ] || [ ! -f "$CACHE_DIR/dist/index.js" ]; then
+  echo "Downloading Preview Server v$REMOTE_VERSION (~175KB)..."
   mkdir -p "$CACHE_DIR"
   curl -# "$RAW_BASE/preview-server/dist.zip" -o "$CACHE_DIR/dist.zip"
-  unzip -o "$CACHE_DIR/dist.zip" -d "$CACHE_DIR/dist/"
+  unzip -o "$CACHE_DIR/dist.zip" -d "$CACHE_DIR/"
   echo "$REMOTE_VERSION" > "$CACHE_DIR/version.txt"
   echo "Preview Server v$REMOTE_VERSION ready"
+fi
+
+# Install runtime dependencies (first run after download)
+if [ ! -d "$CACHE_DIR/node_modules" ]; then
+  echo "Installing runtime dependencies..."
+  cd "$CACHE_DIR" && npm install --production --no-audit --no-fund 2>&1
 fi
 ```
 
@@ -44,8 +50,8 @@ If not running:
 fuser -k 3000/tcp 2>/dev/null || true
 
 # Start the server
-cd $WORKDIR/design-works/.cache/assets/preview-server/dist && \
-  PORT=3000 ROOT=$WORKDIR/design-works node index.js &
+cd $WORKDIR/design-works/.cache/assets/preview-server && \
+  PORT=3000 ROOT=$WORKDIR/design-works WORKDIR=$WORKDIR node dist/index.js &
 ```
 
 ## Outputting the Preview Link
@@ -110,7 +116,8 @@ pkill -f "dist/index.js"
 ## Rules
 
 - Preview server is downloaded on demand from GitHub `YaoApp/design-assets`, never bundled
-- Start only after checking `$WORKDIR/design-works/.cache/assets/preview-server/dist/` exists
+- After extracting dist.zip, run `npm install --production` if `node_modules/` is missing
+- Start only after checking `$CACHE_DIR/dist/index.js` exists
 - INDEX.md version changes trigger auto re-download of dist.zip
 - One preview server instance per session
 - Check port 3000 before starting; if occupied, `fuser -k 3000/tcp` first
@@ -118,3 +125,4 @@ pkill -f "dist/index.js"
 - Theme from `$CTX.THEME`, locale from `$CTX.LOCALE`
 - Never use `python3 -m http.server` as a substitute
 - Use port 3000 (matching sandbox.yao ports configuration)
+- Pass `WORKDIR` env so the server can resolve `.attachments/clips/` for clip_write
