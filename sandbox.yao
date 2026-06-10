@@ -5,7 +5,7 @@
     "memory": "4GB",
     "cpus": 2,
     "work_dir": "/workspace",
-    "ports": [3000],
+    "ports": [{ "label": "Design Preview", "port": 3000 }],
     "vnc": {
       "enabled": true,
       "resolution": "1920x1080"
