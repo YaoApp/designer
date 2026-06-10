@@ -1,0 +1,35 @@
+{
+  "version": "2.0",
+  "computer": {
+    "image": "yaoapp/tai-sandbox-claude-desktop:latest",
+    "memory": "4GB",
+    "cpus": 2,
+    "work_dir": "/workspace",
+    "ports": [3000],
+    "vnc": {
+      "enabled": true,
+      "resolution": "1920x1080"
+    }
+  },
+  "runner": {
+    "name": "claude",
+    "mode": "cli",
+    "supports": ["claude", "opencode"],
+    "options": {
+      "max_turns": 200,
+      "permission_mode": "bypassPermissions",
+      "disallowed_tools": "WebSearch,WebFetch"
+    }
+  },
+  "secrets": {
+    "GITHUB_TOKEN": {
+      "label": "GitHub Token",
+      "description": "Personal access token for GitHub API. Optional — public assets are fetched without authentication.",
+      "required": false
+    }
+  },
+  "prepare": [],
+  "lifecycle": "longrunning",
+  "idle_timeout": "1h",
+  "max_lifetime": "24h"
+}

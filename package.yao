@@ -1,0 +1,26 @@
+{
+  "name": "{{ name }}",
+  "description": "{{ description }}",
+  "capabilities": "{{ capabilities }}",
+  "connector": "use::default",
+  "avatar": "/v1/__yao/app/icons/app.png",
+  "options": {},
+  "public": true,
+  "placeholder": {
+    "title": "{{ chat.title }}",
+    "description": "{{ chat.description }}",
+    "prompts": ["{{ chat.prompts.0 }}", "{{ chat.prompts.1 }}"]
+  },
+  "uses": {
+    "search": "disabled"
+  },
+  "tags": ["Design", "Tool"],
+  "default_mode": "chat",
+  "modes": ["chat", "task"],
+  "sort": 50,
+  "readonly": false,
+  "automated": true,
+  "mentionable": true,
+  "__yao_created_by": "342576748688",
+  "__yao_team_id": "342576744828"
+}

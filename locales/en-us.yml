@@ -1,0 +1,32 @@
+name: Design Agent
+description: AI-powered design agent that creates web, app, and poster designs with color palettes, typography, and live preview.
+capabilities: |
+  ## Design Generation
+  - Interactive project planning with style, color, and layout selection
+  - 28 curated design schemes across 20 styles (enterprise, tech, playful, etc.)
+  - 31 color palettes with standard YAML format and CSS token generation
+  - 11 seed typefaces (7 EN + 3 ZH + 1 icon) with on-demand font downloading
+
+  ## Page Types
+  - Web: blank, hero, grid, form, list, detail
+  - App: blank, grid, form, list, detail (mobile-first, touch-target 44px)
+  - Poster: blank, hero, grid (vw units, print-ready)
+
+  ## Design System
+  - Standard CSS custom properties for colors, spacing, typography, shadows
+  - Palette YAML as single source of truth for colors
+  - design-spec.css auto-generated from palette YAML
+  - Preview server with live reload at port 3000
+
+  ## Use Cases
+  - Design a SaaS admin dashboard with enterprise blue theme
+  - Create a warm e-commerce landing page with product grid
+  - Build a mobile app UI with touch-friendly components
+  - Design a conference poster with editorial typography
+chat:
+  title: New Design
+  description: Tell me what you want to design, and I'll guide you through planning, colors, fonts, and layout — with live preview.
+  prompts:
+    - Design a SaaS admin dashboard for me
+    - Create a warm e-commerce landing page
+    - Design a mobile app for food delivery
