@@ -10,48 +10,49 @@ Start and manage the design preview server. The server is hosted at GitHub
 `YaoApp/design-assets` and downloaded on demand. It provides live reload
 via WebSocket and serves all design projects under the workspace.
 
-## Downloading Preview Server
+The preview server is a **daemon** — once started, it stays running for the
+entire session. Use `start.sh` to ensure it's alive (idempotent: it skips
+if already running). Only restart when the server itself has been updated.
+
+## Lifecycle Scripts
+
+All scripts are in `$CTX_SKILLS_DIR/preview-server/`. Run them via bash:
+
+| Script | Purpose |
+|--------|---------|
+| `download.sh` | Download or update the preview server from GitHub |
+| `check.sh` | Check if the preview server is running |
+| `start.sh` | **Idempotent start** — download + start if not already running |
+| `stop.sh` | Stop the running preview server |
+| `restart.sh` | Stop then start (use after server version update) |
+
+## Ensuring the Server is Running (Most Common)
 
 ```bash
-RAW_BASE="https://raw.githubusercontent.com/YaoApp/design-assets/main"
-CACHE_DIR="$WORKDIR/design-works/.cache/assets/preview-server"
-
-LOCAL_VERSION=$(cat "$CACHE_DIR/version.txt" 2>/dev/null || echo "")
-# AI reads INDEX.md to get REMOTE_VERSION (e.g. "0.2.0")
-REMOTE_VERSION="0.2.1"
-
-if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ] || [ ! -f "$CACHE_DIR/dist/index.js" ]; then
-  echo "Downloading Preview Server v$REMOTE_VERSION (~175KB)..."
-  mkdir -p "$CACHE_DIR"
-  curl -# "$RAW_BASE/preview-server/dist.zip" -o "$CACHE_DIR/dist.zip"
-  unzip -o "$CACHE_DIR/dist.zip" -d "$CACHE_DIR/"
-  echo "$REMOTE_VERSION" > "$CACHE_DIR/version.txt"
-  echo "Preview Server v$REMOTE_VERSION ready"
-fi
-
-# Install runtime dependencies (first run after download)
-if [ ! -d "$CACHE_DIR/node_modules" ]; then
-  echo "Installing runtime dependencies..."
-  cd "$CACHE_DIR" && npm install --production --no-audit --no-fund 2>&1
-fi
+bash $CTX_SKILLS_DIR/preview-server/start.sh
 ```
 
-## Starting Preview Server
+This downloads the server if needed, then starts it if it's not already running.
+It is safe to call after every file change — it won't restart unnecessarily.
+
+## Checking Status
 
 ```bash
-# Check if already running
-pgrep -f "dist/index.js" && echo "running" || echo "stopped"
+bash $CTX_SKILLS_DIR/preview-server/check.sh
 ```
 
-If not running:
+## Restarting (After Server Update)
+
+Only needed when the preview server version changed and dist.zip was re-downloaded:
 
 ```bash
-# Kill anything on port 3000
-fuser -k 3000/tcp 2>/dev/null || true
+bash $CTX_SKILLS_DIR/preview-server/restart.sh
+```
 
-# Start the server
-cd $WORKDIR/design-works/.cache/assets/preview-server && \
-  PORT=3000 ROOT=$WORKDIR/design-works WORKDIR=$WORKDIR node dist/index.js &
+## Stopping
+
+```bash
+bash $CTX_SKILLS_DIR/preview-server/stop.sh
 ```
 
 ## Outputting the Preview Link
@@ -107,20 +108,16 @@ curl -X POST http://localhost:3000/api/screenshot \
   -o $WORKDIR/design-works/{project}/.captures/screenshot.png
 ```
 
-## Stopping Preview Server
-
-```bash
-pkill -f "dist/index.js"
-```
-
 ## Rules
 
+- Use `bash $CTX_SKILLS_DIR/preview-server/start.sh` to ensure the server is alive
+- Do NOT restart the server every time a file changes — the daemon handles live reload
+- `start.sh` is idempotent: call it freely, it skips if already running
+- Only use `restart.sh` after the preview server dist.zip was re-downloaded (version bump)
 - Preview server is downloaded on demand from GitHub `YaoApp/design-assets`, never bundled
-- After extracting dist.zip, run `npm install --production` if `node_modules/` is missing
-- Start only after checking `$CACHE_DIR/dist/index.js` exists
+- After extracting dist.zip, `download.sh` runs `npm install --production` if `node_modules/` is missing
 - INDEX.md version changes trigger auto re-download of dist.zip
 - One preview server instance per session
-- Check port 3000 before starting; if occupied, `fuser -k 3000/tcp` first
 - Always attach `?theme=` and `?lang=` params to the preview link
 - Theme from `$CTX.THEME`, locale from `$CTX.LOCALE`
 - Never use `python3 -m http.server` as a substitute
