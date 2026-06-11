@@ -18,7 +18,7 @@ CACHE_DIR="$WORKDIR/design-works/.cache/assets/preview-server"
 
 LOCAL_VERSION=$(cat "$CACHE_DIR/version.txt" 2>/dev/null || echo "")
 # AI reads INDEX.md to get REMOTE_VERSION (e.g. "0.2.0")
-REMOTE_VERSION="0.2.0"
+REMOTE_VERSION="0.2.1"
 
 if [ "$LOCAL_VERSION" != "$REMOTE_VERSION" ] || [ ! -f "$CACHE_DIR/dist/index.js" ]; then
   echo "Downloading Preview Server v$REMOTE_VERSION (~175KB)..."
